@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { parseISO, format } from 'date-fns';
 
 const OperationList = ({ operations }) => {
   const [originBankFilter, setOriginBankFilter] = useState('');
@@ -58,10 +59,18 @@ const OperationList = ({ operations }) => {
     const isDateMatch = !dateFilter || new Date(operation.publish_time).toLocaleDateString() === new Date(dateFilter).toLocaleDateString();
 
     if (isOriginMatch && isDestinationMatch && isDateMatch) {
-      if (bankConciliation[originBankKey]) {
-        bankConciliation[originBankKey] -= parseInt(amount);
-      } else {
-        bankConciliation[originBankKey] = -parseInt(amount);
+      if (operation.operation_type == 2200){
+        if (bankConciliation[originBankKey]) {
+          bankConciliation[originBankKey] += parseInt(amount);
+        } else {
+          bankConciliation[originBankKey] = parseInt(amount);
+        }
+      }else{
+        if (bankConciliation[originBankKey]) {
+          bankConciliation[originBankKey] -= parseInt(amount);
+        } else {
+          bankConciliation[originBankKey] = -parseInt(amount);
+        }
       }
 
       /* if (bankConciliation[destinationBankKey]) {
@@ -161,8 +170,6 @@ const OperationList = ({ operations }) => {
         value={originBankFilter}
         onChange={(e) => setOriginBankFilter(e.target.value)}
       />
-    </div>
-    <div>
       <label htmlFor="destinationBankFilter">Banco de destino:</label>
       <input
         type="text"
@@ -170,8 +177,6 @@ const OperationList = ({ operations }) => {
         value={destinationBankFilter}
         onChange={(e) => setDestinationBankFilter(e.target.value)}
       />
-    </div>
-    <div>
       <label htmlFor="dateFilter">Fecha de transacción:</label>
       <input
         type="date"
@@ -205,8 +210,8 @@ const OperationList = ({ operations }) => {
         <table>
           <thead>
             <tr>
-              <th>Origen {originBankFilter}</th>
-              <th>Destino {destinationBankFilter}</th>
+              <th>Origen </th>
+              <th>Destino </th>
               <th>Monto</th>
             </tr>
           </thead>
@@ -248,7 +253,7 @@ const OperationList = ({ operations }) => {
                 <td>{operation.destination_bank_id}</td>
                 <td>{operation.destination_account_id}</td>
                 <td>{operation.amount}</td>
-                <td>{operation.publish_time}</td>
+                <td>{format(parseISO(operation.publish_time),'yyyy-MM-dd')}</td>
               </tr>
             ))}
           </tbody>
